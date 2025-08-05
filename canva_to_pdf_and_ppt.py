@@ -1,57 +1,54 @@
-import os
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from fpdf import FPDF
 from pptx import Presentation
 from pptx.util import Inches
-from PIL import Image
-import requests
-from io import BytesIO
+import time
+import os
 
-def generate_pdf_and_ppt(canva_url, num_slides, output_folder, pdf_filename, ppt_filename):
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--window-size=1920,1080")
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+def generate_pdf_and_ppt(canva_url, output_folder, pdf_filename="output.pdf", ppt_filename="output.pptx"):
+    chrome_options = Options()
+    chrome_options.binary_location = "/usr/bin/google-chrome"  # ✅ chemin requis sur Render
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--window-size=1920,1080")
+
+    # Lance le navigateur
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    # Charge la page Canva
     driver.get(canva_url)
+    time.sleep(5)  # ⏳ laisse le temps à Canva de charger les éléments
 
-    time.sleep(5)
+    # Capture des screenshots des slides
+    slides = driver.find_elements("css selector", '[data-testid="page"]')
+    screenshots = []
+    for i, slide in enumerate(slides):
+        driver.execute_script("arguments[0].scrollIntoView(true);", slide)
+        time.sleep(1)
+        path = os.path.join(output_folder, f"slide_{i+1}.png")
+        slide.screenshot(path)
+        screenshots.append(path)
 
-    images = []
+    driver.quit()
 
-    for i in range(int(num_slides)):
-        time.sleep(0.5)
-        image_url = f"https://fakeimage.canva.com/slide{i+1}.png"
-        response = requests.get(image_url)
-        if response.status_code == 200:
-            img = Image.open(BytesIO(response.content))
-            images.append(img)
-
+    # Génère le PDF
     pdf = FPDF()
-    for img in images:
-        img_path = os.path.join(output_folder, "temp_img.jpg")
-        img.save(img_path)
+    for img_path in screenshots:
         pdf.add_page()
         pdf.image(img_path, x=10, y=10, w=190)
     pdf_output_path = os.path.join(output_folder, pdf_filename)
-    pdf.output(pdf_output_path, "F")
+    pdf.output(pdf_output_path)
 
-    prs = Presentation()
-    blank_slide_layout = prs.slide_layouts[6]
-    for img in images:
-        slide = prs.slides.add_slide(blank_slide_layout)
-        image_stream = BytesIO()
-        img.save(image_stream, format='PNG')
-        image_stream.seek(0)
-        slide.shapes.add_picture(image_stream, Inches(0), Inches(0), width=prs.slide_width, height=prs.slide_height)
+    # Génère le PPTX
+    ppt = Presentation()
+    blank_slide_layout = ppt.slide_layouts[6]
+    for img_path in screenshots:
+        slide = ppt.slides.add_slide(blank_slide_layout)
+        slide.shapes.add_picture(img_path, Inches(0), Inches(0), width=Inches(10))
     ppt_output_path = os.path.join(output_folder, ppt_filename)
-    prs.save(ppt_output_path)
-
-    driver.quit()
+    ppt.save(ppt_output_path)
