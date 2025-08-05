@@ -3,3 +3,4 @@ selenium
 pillow
 fpdf
 python-pptx
+webdriver-manager
