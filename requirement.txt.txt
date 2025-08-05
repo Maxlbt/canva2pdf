@@ -1,0 +1,5 @@
+flask
+selenium
+pillow
+fpdf
+python-pptx
