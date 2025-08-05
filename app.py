@@ -1,11 +1,11 @@
 from flask import Flask, request, send_file, jsonify
-from flask_cors import CORS  # ✅ Ajouté ici
+from flask_cors import CORS
 import uuid
 import os
 from canva_to_pdf_and_ppt import generate_pdf_and_ppt
 
 app = Flask(__name__)
-CORS(app)  # ✅ Active CORS sur toute l'app
+CORS(app)
 
 @app.route("/convert", methods=["POST"])
 def convert():
@@ -27,12 +27,13 @@ def convert():
     ppt_file = os.path.join(output_folder, ppt_filename)
 
     try:
+        # Appel à la fonction avec les bons arguments
         generate_pdf_and_ppt(
             canva_url=url,
-            num_slides=num_slides,
+            num_slides=int(num_slides),
             output_folder=output_folder,
-            pdf_filename=pdf_filename,
-            ppt_filename=ppt_filename
+            pdf_path=pdf_file,
+            pptx_path=ppt_file
         )
         return send_file(pdf_file if output == "pdf" else ppt_file, as_attachment=True)
     except Exception as e:
