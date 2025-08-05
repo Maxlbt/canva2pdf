@@ -1,4 +1,4 @@
 type: web
 environment: python
 buildCommand: "pip install -r requirements.txt"
-startCommand: "python app.py"
+startCommand: "python3 app.py"
