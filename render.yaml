@@ -1,6 +1,4 @@
 type: web
-name: canva2pdf
-env: python
-pythonVersion: 3.10
+environment: python
 buildCommand: "pip install -r requirements.txt"
-startCommand: "python app.py"
+startCommand: "python3 app.py"
