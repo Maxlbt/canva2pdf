@@ -4,6 +4,7 @@ import os
 from canva_to_pdf_and_ppt import generate_pdf_and_ppt
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/convert", methods=["POST"])
 def convert():
