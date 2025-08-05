@@ -23,19 +23,16 @@ def convert():
     output_folder = f"/tmp/{job_id}"
     os.makedirs(output_folder, exist_ok=True)
 
-    pdf_file = os.path.join(output_folder, pdf_filename)
-    ppt_file = os.path.join(output_folder, ppt_filename)
-
     try:
-        # Appel à la fonction avec les bons arguments
         generate_pdf_and_ppt(
             canva_url=url,
-            num_slides=int(num_slides),
+            num_slides=num_slides,
             output_folder=output_folder,
-            pdf_path=pdf_file,
-            pptx_path=ppt_file
+            pdf_filename=pdf_filename,
+            ppt_filename=ppt_filename
         )
-        return send_file(pdf_file if output == "pdf" else ppt_file, as_attachment=True)
+        file_path = os.path.join(output_folder, pdf_filename if output == "pdf" else ppt_filename)
+        return send_file(file_path, as_attachment=True)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
