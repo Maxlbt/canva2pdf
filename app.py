@@ -35,3 +35,7 @@ def convert():
         return send_file(pdf_file if output == "pdf" else ppt_file, as_attachment=True)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
