@@ -50,3 +50,20 @@ def generate_pdf_and_ppt(canva_url, output_format, pdf_path=None, ppt_path=None,
 
     for image in images:
         os.remove(image)
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+
+# Spécifie l'emplacement du binaire Chrome
+chrome_options.binary_location = "/usr/bin/google-chrome"
+
+# Démarre le driver avec le bon chemin
+service = Service("/usr/local/bin/chromedriver")
+driver = webdriver.Chrome(service=service, options=chrome_options)
+

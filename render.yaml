@@ -1,10 +1,16 @@
-type: web
-name: canva2pdf
-env: python
-pythonVersion: 3.10
-buildCommand: |
-  apt-get update && apt-get install -y wget unzip gnupg
-  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  apt install -y ./google-chrome-stable_current_amd64.deb
-  pip install -r requirements.txt
-startCommand: python3 app.py
+services:
+  - type: web
+    name: canva2pdf
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y wget unzip curl gnupg
+      curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google-chrome.gpg
+      echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+      apt-get update && apt-get install -y google-chrome-stable
+      wget -N https://chromedriver.storage.googleapis.com/124.0.6367.91/chromedriver_linux64.zip -P /tmp/
+      unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/
+      chmod +x /usr/local/bin/chromedriver
+      pip install -r requirements.txt
+    startCommand: python3 app.py
+    plan: free
+    pythonVersion: 3.10
